@@ -1,17 +1,21 @@
-package org.example.providerservice.service;
+package com.zakharkevich.lab.providerservice.service;
 
-import org.example.providerservice.entity.Provider;
-import org.example.providerservice.repository.ProviderRepository;
+import com.zakharkevich.lab.providerservice.repository.ProviderRepository;
+import com.zakharkevich.lab.providerservice.model.entity.Provider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ProviderService {
-    @Autowired
-    private ProviderRepository providerRepository;
+
+    private final ProviderRepository providerRepository;
 
     public List<Provider> getAllProviders() {
         return providerRepository.findAll();
@@ -27,7 +31,7 @@ public class ProviderService {
 
     public Provider updateProvider(Long id, Provider providerDetails) {
         Provider provider = providerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Provider not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Provider not found"));
         provider.setName(providerDetails.getName());
         return providerRepository.save(provider);
     }

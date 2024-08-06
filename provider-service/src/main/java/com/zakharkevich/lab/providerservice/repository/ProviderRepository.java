@@ -1,6 +1,6 @@
-package org.example.providerservice.repository;
+package com.zakharkevich.lab.providerservice.repository;
 
-import org.example.providerservice.entity.Provider;
+import com.zakharkevich.lab.providerservice.model.entity.Provider;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
