@@ -14,6 +14,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.zakharkevich.lab.providerservice.security.SecurityConstants.PROVIDER_READ_AUTHORITY;
+import static com.zakharkevich.lab.providerservice.security.SecurityConstants.PROVIDER_WRITE_AUTHORITY;
+
 @RestController
 @RequestMapping("/api/providers")
 @RequiredArgsConstructor
@@ -22,7 +25,7 @@ public class ProviderController {
     private final ProviderMapper providerMapper;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('provider.read')")
+    @PreAuthorize(PROVIDER_READ_AUTHORITY)
     public ResponseEntity<List<ProviderDto>> getAllProviders() {
         List<Provider> providers = providerService.getAllProviders();
         List<ProviderDto> providerDtos = providers.stream()
@@ -32,7 +35,7 @@ public class ProviderController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('provider.read')")
+    @PreAuthorize(PROVIDER_READ_AUTHORITY)
     public ResponseEntity<ProviderDto> getProviderById(@PathVariable Long id) {
         Provider provider = providerService.getProviderById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Provider not found"));
@@ -40,7 +43,7 @@ public class ProviderController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('provider.write')")
+    @PreAuthorize(PROVIDER_WRITE_AUTHORITY)
     public ResponseEntity<ProviderDto> createProvider(@RequestBody ProviderDto providerDto) {
         Provider provider = providerMapper.toEntity(providerDto);
         Provider createdProvider = providerService.createProvider(provider);
@@ -48,7 +51,7 @@ public class ProviderController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('provider.write')")
+    @PreAuthorize(PROVIDER_WRITE_AUTHORITY)
     public ResponseEntity<ProviderDto> updateProvider(@PathVariable Long id, @RequestBody ProviderDto providerDto) {
         Provider provider = providerMapper.toEntity(providerDto);
         Provider updatedProvider = providerService.updateProvider(id, provider);
@@ -56,7 +59,7 @@ public class ProviderController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('provider.write')")
+    @PreAuthorize(PROVIDER_WRITE_AUTHORITY)
     public ResponseEntity<Void> deleteProvider(@PathVariable Long id) {
         providerService.deleteProvider(id);
         return ResponseEntity.noContent().build();
