@@ -1,6 +1,7 @@
 package com.zakharkevich.lab.providerservice.security;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,6 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @EnableWebSecurity
 @EnableMethodSecurity
+@Configuration
 public class SecurityConfig {
 
     @Bean
@@ -25,7 +27,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    private JwtAuthenticationConverter jwtAuthenticationConverter() {
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setPrincipalClaimName("preferred_username");
         converter.setJwtGrantedAuthoritiesConverter(new KeycloakRoleConverter());

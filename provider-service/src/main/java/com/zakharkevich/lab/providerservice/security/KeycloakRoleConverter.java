@@ -22,7 +22,6 @@ public class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedA
 
         return Stream.concat(authorities.stream(),
                         roles.stream()
-                                .filter(role -> role.startsWith(ROLE_PREFIX))
                                 .map(SimpleGrantedAuthority::new)
                                 .map(GrantedAuthority.class::cast))
                 .toList();

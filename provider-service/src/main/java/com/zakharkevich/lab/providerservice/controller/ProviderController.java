@@ -25,7 +25,7 @@ public class ProviderController {
     private final ProviderMapper providerMapper;
 
     @GetMapping
-    @PreAuthorize(PROVIDER_READ_AUTHORITY)
+    @PreAuthorize("hasAuthority('" + PROVIDER_READ_AUTHORITY + "')")
     public ResponseEntity<List<ProviderDto>> getAllProviders() {
         List<Provider> providers = providerService.getAllProviders();
         List<ProviderDto> providerDtos = providers.stream()
@@ -35,7 +35,7 @@ public class ProviderController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize(PROVIDER_READ_AUTHORITY)
+    @PreAuthorize("hasAuthority('" + PROVIDER_READ_AUTHORITY + "')")
     public ResponseEntity<ProviderDto> getProviderById(@PathVariable Long id) {
         Provider provider = providerService.getProviderById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Provider not found"));
@@ -43,7 +43,7 @@ public class ProviderController {
     }
 
     @PostMapping
-    @PreAuthorize(PROVIDER_WRITE_AUTHORITY)
+    @PreAuthorize("hasAuthority('" + PROVIDER_WRITE_AUTHORITY + "')")
     public ResponseEntity<ProviderDto> createProvider(@RequestBody ProviderDto providerDto) {
         Provider provider = providerMapper.toEntity(providerDto);
         Provider createdProvider = providerService.createProvider(provider);
@@ -51,7 +51,7 @@ public class ProviderController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize(PROVIDER_WRITE_AUTHORITY)
+    @PreAuthorize("hasAuthority('" + PROVIDER_WRITE_AUTHORITY + "')")
     public ResponseEntity<ProviderDto> updateProvider(@PathVariable Long id, @RequestBody ProviderDto providerDto) {
         Provider provider = providerMapper.toEntity(providerDto);
         Provider updatedProvider = providerService.updateProvider(id, provider);
@@ -59,7 +59,7 @@ public class ProviderController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize(PROVIDER_WRITE_AUTHORITY)
+    @PreAuthorize("hasAuthority('" + PROVIDER_WRITE_AUTHORITY + "')")
     public ResponseEntity<Void> deleteProvider(@PathVariable Long id) {
         providerService.deleteProvider(id);
         return ResponseEntity.noContent().build();
