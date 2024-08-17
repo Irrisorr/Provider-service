@@ -2,11 +2,10 @@ package com.zakharkevich.lab.providerservice.model.dto;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class ProviderDto {
+public class ServiceDto {
     private Long id;
     private String name;
-    private List<ServiceDto> services;
+    private Boolean availability;
+    private Long providerId;
 }
