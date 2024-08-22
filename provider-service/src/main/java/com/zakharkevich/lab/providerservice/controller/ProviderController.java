@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -23,42 +24,60 @@ public class ProviderController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('provider.read')")
-    public ResponseEntity<List<ProviderDto>> getAllProviders() {
+    @ResponseStatus(HttpStatus.OK)
+    public List<ProviderDto> getAllProviders() {
         List<Provider> providers = providerService.getAllProviders();
-        List<ProviderDto> providerDtos = providers.stream()
-                .map(providerMapper::toDto)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(providerDtos);
+        return providers.stream().map(providerMapper::toDto).collect(Collectors.toList());
     }
+
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('provider.read')")
-    public ResponseEntity<ProviderDto> getProviderById(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.OK)
+    public ProviderDto getProviderById(@PathVariable Long id) {
         Provider provider = providerService.getProviderById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Provider not found"));
-        return ResponseEntity.ok(providerMapper.toDto(provider));
+        return providerMapper.toDto(provider);
     }
 
     @PostMapping
     @PreAuthorize("hasAuthority('provider.write')")
-    public ResponseEntity<ProviderDto> createProvider(@RequestBody ProviderDto providerDto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ProviderDto createProvider(@RequestBody ProviderDto providerDto) {
         Provider provider = providerMapper.toEntity(providerDto);
         Provider createdProvider = providerService.createProvider(provider);
-        return ResponseEntity.status(HttpStatus.CREATED).body(providerMapper.toDto(createdProvider));
+        return providerMapper.toDto(createdProvider);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('provider.write')")
-    public ResponseEntity<ProviderDto> updateProvider(@PathVariable Long id, @RequestBody ProviderDto providerDto) {
-        Provider provider = providerMapper.toEntity(providerDto);
-        Provider updatedProvider = providerService.updateProvider(id, provider);
-        return ResponseEntity.ok(providerMapper.toDto(updatedProvider));
+    @ResponseStatus(HttpStatus.OK)
+    public ProviderDto updateProvider(@PathVariable Long id, @RequestBody ProviderDto providerDto) {
+        Provider providerDetails = providerMapper.toEntity(providerDto);
+        Provider updatedProvider = providerService.updateProvider(id, providerDetails);
+        return providerMapper.toDto(updatedProvider);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('provider.write')")
-    public ResponseEntity<Void> deleteProvider(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProvider(@PathVariable Long id) {
         providerService.deleteProvider(id);
-        return ResponseEntity.noContent().build();
     }
+
+
+    @GetMapping("/{id}/photo")
+    @PreAuthorize("hasAuthority('provider.read')")
+    @ResponseStatus(HttpStatus.OK)
+    public String getProviderPhoto(@PathVariable Long id) {
+        return providerService.getProviderPhoto(id);
+    }
+
+    @PostMapping("/{id}/uploadPhoto")
+    @PreAuthorize("hasAuthority('provider.write')")
+    @ResponseStatus(HttpStatus.OK)
+    public void uploadPhoto(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        providerService.uploadPhoto(id, file);
+    }
+
 }

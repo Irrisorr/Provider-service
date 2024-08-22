@@ -7,12 +7,13 @@ import lombok.NoArgsConstructor;
 @Entity
 @Data
 @NoArgsConstructor
-public class Service_ {
+public class Service {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private Boolean availability;
+    private Double price;
+    private String duration;
 
     @ManyToOne
     @JoinColumn(name = "provider_id", nullable = false)

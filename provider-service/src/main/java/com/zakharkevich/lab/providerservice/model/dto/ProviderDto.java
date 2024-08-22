@@ -8,5 +8,8 @@ import java.util.List;
 public class ProviderDto {
     private Long id;
     private String name;
+    private String description;
     private List<ServiceDto> services;
+    private ContactInfoDto contactInfo;
+    private String photoUrl;
 }

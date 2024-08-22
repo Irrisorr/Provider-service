@@ -2,7 +2,7 @@ package com.zakharkevich.lab.providerservice.controller;
 
 import com.zakharkevich.lab.providerservice.model.dto.ServiceDto;
 import com.zakharkevich.lab.providerservice.model.entity.Provider;
-import com.zakharkevich.lab.providerservice.model.entity.Service_;
+import com.zakharkevich.lab.providerservice.model.entity.Service;
 import com.zakharkevich.lab.providerservice.service.ProviderService;
 import com.zakharkevich.lab.providerservice.service.ServiceService;
 import com.zakharkevich.lab.providerservice.mapper.ServiceMapper;
@@ -26,46 +26,49 @@ public class ServiceController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('provider.read')")
-    public ResponseEntity<List<ServiceDto>> getAllServices() {
-        List<Service_> services = serviceService.getAllServices();
-        List<ServiceDto> serviceDtos = services.stream()
+    @ResponseStatus(HttpStatus.OK)
+    public List<ServiceDto> getAllServices() {
+        List<Service> services = serviceService.getAllServices();
+        return services.stream()
                 .map(serviceMapper::toDto)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(serviceDtos);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('provier.read')")
-    public ResponseEntity<ServiceDto> getServiceById(@PathVariable Long id) {
-        Service_ service = serviceService.getServiceById(id)
+    @ResponseStatus(HttpStatus.OK)
+    public ServiceDto getServiceById(@PathVariable Long id) {
+        Service service = serviceService.getServiceById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Service not found"));
-        return ResponseEntity.ok(serviceMapper.toDto(service));
+        return serviceMapper.toDto(service);
     }
 
     @PostMapping
     @PreAuthorize("hasAuthority('provider.write')")
-    public ResponseEntity<ServiceDto> createService(@RequestBody ServiceDto serviceDto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ServiceDto createService(@RequestBody ServiceDto serviceDto) {
         Provider provider = providerService.getProviderById(serviceDto.getProviderId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Provider not found"));
-        Service_ service = serviceMapper.toEntity(serviceDto, provider);
-        Service_ createdService = serviceService.createService(service);
-        return ResponseEntity.status(HttpStatus.CREATED).body(serviceMapper.toDto(createdService));
+        Service service = serviceMapper.toEntity(serviceDto, provider);
+        Service createdService = serviceService.createService(service, serviceDto.getProviderId());
+        return serviceMapper.toDto(createdService);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('provider.write')")
-    public ResponseEntity<ServiceDto> updateService(@PathVariable Long id, @RequestBody ServiceDto serviceDto) {
+    @ResponseStatus(HttpStatus.OK)
+    public ServiceDto updateService(@PathVariable Long id, @RequestBody ServiceDto serviceDto) {
         Provider provider = providerService.getProviderById(serviceDto.getProviderId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Provider not found"));
-        Service_ service = serviceMapper.toEntity(serviceDto, provider);
-        Service_ updatedService = serviceService.updateService(id, service);
-        return ResponseEntity.ok(serviceMapper.toDto(updatedService));
+        Service service = serviceMapper.toEntity(serviceDto, provider);
+        Service updatedService = serviceService.updateService(id, service);
+        return serviceMapper.toDto(updatedService);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('provider.write')")
-    public ResponseEntity<Void> deleteService(@PathVariable Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteService(@PathVariable Long id) {
         serviceService.deleteService(id);
-        return ResponseEntity.noContent().build();
     }
 }
