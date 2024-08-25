@@ -4,21 +4,19 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.time.Duration;
-
 @Entity
+@Table(name = "images")
 @Data
 @NoArgsConstructor
-public class Service {
+public class Image {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    private BigDecimal price;
-    private Duration duration;
 
-    @ManyToOne
-    @JoinColumn(name = "provider_id", nullable = false)
+    @Column(name = "data", columnDefinition = "bytea")
+    private byte[] data;
+
+    @OneToOne(mappedBy = "image")
     private Provider provider;
 }

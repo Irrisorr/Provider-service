@@ -1,23 +1,33 @@
-CREATE TABLE provider (
-                          id BIGSERIAL PRIMARY KEY,
-                          name VARCHAR(255) NOT NULL,
-                          description TEXT,
-                          photo_url VARCHAR(255)
+CREATE TABLE images (
+                        id BIGSERIAL PRIMARY KEY,
+                        data BYTEA
+);
+
+CREATE TABLE providers (
+                           id BIGSERIAL PRIMARY KEY,
+                           name VARCHAR(255) NOT NULL,
+                           description TEXT,
+                           image_id BIGINT,
+                           FOREIGN KEY (image_id) REFERENCES images(id)
 );
 
 CREATE TABLE contact_info (
                               id BIGSERIAL PRIMARY KEY,
-                              address VARCHAR(255),
+                              city VARCHAR(255),
+                              street VARCHAR(255),
+                              house VARCHAR(50),
                               phone VARCHAR(20),
-                              working_hours VARCHAR(255)
+                              working_hours_start TIME,
+                              working_hours_end TIME,
+                              provider_id BIGINT,
+                              FOREIGN KEY (provider_id) REFERENCES providers(id)
 );
 
-CREATE TABLE service (
-                         id BIGSERIAL PRIMARY KEY,
-                         name VARCHAR(255) NOT NULL,
-                         price DECIMAL(10, 2) NOT NULL,
-                         duration VARCHAR(255) NOT NULL,
-                         provider_id BIGINT NOT NULL REFERENCES provider(id)
+CREATE TABLE services (
+                          id BIGSERIAL PRIMARY KEY,
+                          name VARCHAR(255) NOT NULL,
+                          price DECIMAL(10, 2),
+                          duration INTERVAL,
+                          provider_id BIGINT NOT NULL,
+                          FOREIGN KEY (provider_id) REFERENCES providers(id)
 );
-
-ALTER TABLE provider ADD COLUMN contact_info_id BIGINT UNIQUE REFERENCES contact_info(id);

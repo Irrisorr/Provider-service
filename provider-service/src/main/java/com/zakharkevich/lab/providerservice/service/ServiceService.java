@@ -18,8 +18,8 @@ public class ServiceService {
     private final ServiceRepository serviceRepository;
     private final ProviderRepository providerRepository;
 
-    public List<Service> getAllServices() {
-        return serviceRepository.findAll();
+    public List<Service> getAllServices(Long providerId) {
+        return serviceRepository.findByProviderId(providerId);
     }
 
     public Optional<Service> getServiceById(Long id) {

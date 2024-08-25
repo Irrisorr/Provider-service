@@ -11,5 +11,5 @@ public class ProviderDto {
     private String description;
     private List<ServiceDto> services;
     private ContactInfoDto contactInfo;
-    private String photoUrl;
+    private String imageUrl;
 }

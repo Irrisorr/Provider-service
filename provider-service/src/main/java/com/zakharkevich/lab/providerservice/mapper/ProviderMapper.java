@@ -2,8 +2,10 @@ package com.zakharkevich.lab.providerservice.mapper;
 
 import com.zakharkevich.lab.providerservice.model.dto.ProviderDto;
 import com.zakharkevich.lab.providerservice.model.entity.Provider;
+import com.zakharkevich.lab.providerservice.model.entity.Service;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -22,7 +24,11 @@ public class ProviderMapper {
         providerDto.setId(provider.getId());
         providerDto.setName(provider.getName());
         providerDto.setDescription(provider.getDescription());
-        providerDto.setPhotoUrl(provider.getPhotoUrl());
+        if (provider.getImage() != null) {
+            providerDto.setImageUrl("/api/providers/" + provider.getId() + "/image");
+        } else {
+            providerDto.setImageUrl(null);
+        }
 
         if (provider.getContactInfo() != null) {
             providerDto.setContactInfo(contactInfoMapper.toDto(provider.getContactInfo()));
@@ -41,16 +47,20 @@ public class ProviderMapper {
         provider.setId(providerDto.getId());
         provider.setName(providerDto.getName());
         provider.setDescription(providerDto.getDescription());
-        provider.setPhotoUrl(providerDto.getPhotoUrl());
 
         if (providerDto.getContactInfo() != null) {
             provider.setContactInfo(contactInfoMapper.toEntity(providerDto.getContactInfo()));
         }
 
         if (providerDto.getServices() != null && !providerDto.getServices().isEmpty()) {
-            provider.setServices(providerDto.getServices().stream()
-                    .map(serviceDto -> serviceMapper.toEntity(serviceDto, provider))
-                    .collect(Collectors.toList()));
+            List<Service> services = providerDto.getServices().stream()
+                    .map(serviceDto -> {
+                        Service service = serviceMapper.toEntity(serviceDto, provider);
+                        service.setProvider(provider);
+                        return service;
+                    })
+                    .collect(Collectors.toList());
+            provider.setServices(services);
         }
         return provider;
     }

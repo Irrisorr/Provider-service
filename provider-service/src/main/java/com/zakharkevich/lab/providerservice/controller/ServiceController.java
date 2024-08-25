@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/services")
+@RequestMapping("/api/providers/{providerId}/services")
 @RequiredArgsConstructor
 public class ServiceController {
     private final ServiceService serviceService;
@@ -26,17 +26,15 @@ public class ServiceController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('provider.read')")
-    @ResponseStatus(HttpStatus.OK)
-    public List<ServiceDto> getAllServices() {
-        List<Service> services = serviceService.getAllServices();
-        return services.stream()
-                .map(serviceMapper::toDto)
-                .collect(Collectors.toList());
+    public List<ServiceDto> getAllServices(@PathVariable Long providerId) {
+        Provider provider = providerService.getProviderById(providerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Provider not found"));
+        List<Service> services = serviceService.getAllServices(providerId);
+        return services.stream().map(serviceMapper::toDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('provier.read')")
-    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAuthority('provider.read')")
     public ServiceDto getServiceById(@PathVariable Long id) {
         Service service = serviceService.getServiceById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Service not found"));
@@ -46,17 +44,16 @@ public class ServiceController {
     @PostMapping
     @PreAuthorize("hasAuthority('provider.write')")
     @ResponseStatus(HttpStatus.CREATED)
-    public ServiceDto createService(@RequestBody ServiceDto serviceDto) {
-        Provider provider = providerService.getProviderById(serviceDto.getProviderId())
+    public ServiceDto createService(@PathVariable Long providerId, @RequestBody ServiceDto serviceDto) {
+        Provider provider = providerService.getProviderById(providerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Provider not found"));
         Service service = serviceMapper.toEntity(serviceDto, provider);
-        Service createdService = serviceService.createService(service, serviceDto.getProviderId());
+        Service createdService = serviceService.createService(service, providerId);
         return serviceMapper.toDto(createdService);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('provider.write')")
-    @ResponseStatus(HttpStatus.OK)
     public ServiceDto updateService(@PathVariable Long id, @RequestBody ServiceDto serviceDto) {
         Provider provider = providerService.getProviderById(serviceDto.getProviderId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Provider not found"));
