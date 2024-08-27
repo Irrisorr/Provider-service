@@ -22,21 +22,21 @@ public class ProviderEntityToProviderDtoConverter implements Converter<Provider,
         providerDto.setId(source.getId());
         providerDto.setName(source.getName());
         providerDto.setDescription(source.getDescription());
+        providerDto.setContactInfo(contactInfoConverter.convert(source.getContactInfo()));
 
-        if (source.getContactInfo() != null) {
-            providerDto.setContactInfo(contactInfoConverter.convert(source.getContactInfo()));
-        }
-
-        if (source.getServices() != null) {
-            providerDto.setServices(source.getServices().stream()
-                    .map(serviceConverter::convert)
-                    .collect(Collectors.toList()));
-        }
+        providerDto.setServices(source.getServices().stream()
+                .map(serviceConverter::convert)
+                .collect(Collectors.toList()));
 
         if (source.getImage() != null) {
-            providerDto.setImageUrl("/api/providers/" + source.getId() + "/image");
+            providerDto.setImageUrl(ImageUrl(source.getId()));
         }
 
+
         return providerDto;
+    }
+
+    private static String ImageUrl(Long providerId) {
+        return "/api/providers/" + providerId + "/image";
     }
 }

@@ -33,12 +33,6 @@ public class ProviderMapper {
         if (provider.getContactInfo() != null) {
             providerDto.setContactInfo(contactInfoMapper.toDto(provider.getContactInfo()));
         }
-
-        if (provider.getServices() != null && !provider.getServices().isEmpty()) {
-            providerDto.setServices(provider.getServices().stream()
-                    .map(serviceMapper::toDto)
-                    .collect(Collectors.toList()));
-        }
         return providerDto;
     }
 
@@ -50,17 +44,6 @@ public class ProviderMapper {
 
         if (providerDto.getContactInfo() != null) {
             provider.setContactInfo(contactInfoMapper.toEntity(providerDto.getContactInfo()));
-        }
-
-        if (providerDto.getServices() != null && !providerDto.getServices().isEmpty()) {
-            List<Service> services = providerDto.getServices().stream()
-                    .map(serviceDto -> {
-                        Service service = serviceMapper.toEntity(serviceDto, provider);
-                        service.setProvider(provider);
-                        return service;
-                    })
-                    .collect(Collectors.toList());
-            provider.setServices(services);
         }
         return provider;
     }

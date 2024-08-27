@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 
 @Entity
 @Data
@@ -16,7 +15,8 @@ public class Service {
     private Long id;
     private String name;
     private BigDecimal price;
-    private Duration duration;
+
+    private Integer duration;
 
     @ManyToOne
     @JoinColumn(name = "provider_id", nullable = false)
