@@ -39,7 +39,7 @@ public class ServiceService {
         service.setName(serviceDetails.getName());
         service.setPrice(serviceDetails.getPrice());
         service.setDuration(serviceDetails.getDuration());
-        service.setProvider(serviceDetails.getProvider());
+        service.setProvider(service.getProvider());
         return serviceRepository.save(service);
     }
 
