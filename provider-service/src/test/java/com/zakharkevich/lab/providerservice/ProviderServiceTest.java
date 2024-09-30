@@ -1,7 +1,7 @@
 package com.zakharkevich.lab.providerservice;
 
-import com.zakharkevich.lab.providerservice.model.entity.Provider;
 import com.zakharkevich.lab.providerservice.model.entity.Image;
+import com.zakharkevich.lab.providerservice.model.entity.Provider;
 import com.zakharkevich.lab.providerservice.repository.ProviderRepository;
 import com.zakharkevich.lab.providerservice.service.ProviderService;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,12 +33,12 @@ class ProviderServiceTest {
     }
 
     @Test
-    void getAllProviders() {
+    void shouldReturnAllProviders() {
         Provider provider1 = new Provider();
         provider1.setId(1L);
         Provider provider2 = new Provider();
         provider2.setId(2L);
-        List<Provider> providers = Arrays.asList(provider1, provider2);
+        List<Provider> providers = List.of(provider1, provider2);
 
         when(providerRepository.findAll()).thenReturn(providers);
 
@@ -49,7 +49,7 @@ class ProviderServiceTest {
     }
 
     @Test
-    void getProviderById() {
+    void shouldReturnProviderById() {
         Provider provider = new Provider();
         provider.setId(1L);
 
@@ -63,7 +63,7 @@ class ProviderServiceTest {
     }
 
     @Test
-    void createProvider() {
+    void shouldCreateProvider() {
         Provider provider = new Provider();
         provider.setName("Test Provider");
 
@@ -76,7 +76,7 @@ class ProviderServiceTest {
     }
 
     @Test
-    void updateProvider() {
+    void shouldUpdateProvider() {
         Provider existingProvider = new Provider();
         existingProvider.setId(1L);
         existingProvider.setName("Old Name");
@@ -95,23 +95,27 @@ class ProviderServiceTest {
     }
 
     @Test
-    void updateProvider_NotFound() {
+    void shouldThrowExceptionWhenUpdatingNonExistingProvider() {
         when(providerRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> providerService.updateProvider(1L, new Provider()));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> providerService.updateProvider(1L, new Provider()));
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Provider not found", exception.getReason());
+
         verify(providerRepository, times(1)).findById(1L);
         verify(providerRepository, never()).save(any(Provider.class));
     }
 
     @Test
-    void deleteProvider() {
+    void shouldDeleteProvider() {
         providerService.deleteProvider(1L);
 
         verify(providerRepository, times(1)).deleteById(1L);
     }
 
     @Test
-    void getProviderImage() {
+    void shouldReturnProviderImage() {
         Provider provider = new Provider();
         provider.setId(1L);
         Image image = new Image();
@@ -128,26 +132,34 @@ class ProviderServiceTest {
     }
 
     @Test
-    void getProviderImage_ProviderNotFound() {
+    void shouldThrowExceptionWhenProviderNotFoundForGettingImage() {
         when(providerRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> providerService.getProviderImage(1L));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> providerService.getProviderImage(1L));
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Provider not found", exception.getReason());
+
         verify(providerRepository, times(1)).findById(1L);
     }
 
     @Test
-    void getProviderImage_ImageNotFound() {
+    void shouldThrowExceptionWhenImageNotFound() {
         Provider provider = new Provider();
         provider.setId(1L);
 
         when(providerRepository.findById(1L)).thenReturn(Optional.of(provider));
 
-        assertThrows(ResponseStatusException.class, () -> providerService.getProviderImage(1L));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> providerService.getProviderImage(1L));
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Image not found", exception.getReason());
+
         verify(providerRepository, times(1)).findById(1L);
     }
 
     @Test
-    void uploadProviderImage() throws Exception {
+    void shouldUploadProviderImage() throws Exception {
         Provider provider = new Provider();
         provider.setId(1L);
 
@@ -165,12 +177,16 @@ class ProviderServiceTest {
     }
 
     @Test
-    void uploadProviderImage_ProviderNotFound() {
+    void shouldThrowExceptionWhenProviderNotFoundForUploadingImage() {
         MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "test image".getBytes());
 
         when(providerRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> providerService.uploadProviderImage(1L, file));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> providerService.uploadProviderImage(1L, file));
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Provider not found", exception.getReason());
+
         verify(providerRepository, times(1)).findById(1L);
         verify(providerRepository, never()).save(any(Provider.class));
     }
